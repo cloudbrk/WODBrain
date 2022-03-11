@@ -9,7 +9,10 @@
     </div>
     <!-- Load the Actual Page -->
     <script>
-        window.location.replace('/{{ pagetoload }}');
+        var delayInMilliseconds = 3000; //3 second
+        setTimeout(function() {
+            window.location.replace('/{{ pagetoload }}');
+        }, delayInMilliseconds);
     </script>
 
 </main>
