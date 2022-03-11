@@ -263,7 +263,7 @@ def callback():
         g_userid = session.get('google_id')
         existing_user = User.query.get(g_userid)
         login_user(existing_user)
-        return redirect("/load/mobile")
+        return redirect("/mobile")
     else:
         # NOT IN DATABASE / NEW USER
         new_id = str(session["google_id"])
