@@ -1,8 +1,6 @@
 # GENERAL IMPORTS
 import os
 import pathlib
-from shutil import move
-from tkinter import scrolledtext
 import requests
 import datetime
 from wtforms.fields.core import BooleanField
