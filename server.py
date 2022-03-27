@@ -504,8 +504,8 @@ def onerme():
         return render_template("1rme.html", page_class="index-page", onermestring=onermestring, load=load, rep=rep, onerme=onerme, form=one_rme_form, scrollToAnchor="results", current_user=current_user, liftnumbers=lift_dict_map)
     return render_template("1rme.html", page_class="index-page", form=one_rme_form, onermestring="", current_user=current_user)
 
-@app.route("/targets/<lift_id>/<load>/<lvl>", methods=["GET","POST"])
-def targets(lift_id, load, lvl):
+@app.route("/targets/<lift_id>/<load>/<lvl>/<resultsmode>", methods=["GET","POST"])
+def targets(lift_id, load, lvl, resultsmode):
     if current_user.is_authenticated:
         form = TargetWeightForm(
             sex = current_user.sex,
@@ -516,19 +516,36 @@ def targets(lift_id, load, lvl):
     else:
         form = TargetWeightForm()
     if form.validate_on_submit():
+        resultsmode = "true"
+        session['scrollpoint'] = "results"
         # Store form data as variables
         tw_sex = form.sex.data
         tw_age = form.age.data
         tw_bodywt = form.bw.data
         tw_mvmt = form.movement.data
+        move_descr = str(db.session.query(MovementCatalog.move).filter_by(id=tw_mvmt).first()).strip(")(,'") #Generate barbell movement name as a string
+        session['move_descr'] = move_descr
+        
+        if lift_id != tw_mvmt: #This means the movement was changed
+            lift_id = tw_mvmt #Change lift ID to the new barbell movement selected
+            if current_user.is_authenticated: #Pull PR/Level Only for logged in users
+                pr_journal = get_pr_journal() #Recreate the PR Journal for the current user
+                load = pr_journal[move_descr]['onerm'] #Pull the 1RM/E from the PR journal
+                lvl = pr_journal[move_descr]['level'] #Pull the current user level from the PR journal
 
-        bwt = bw_adjust_calc(bw=tw_bodywt, sex=tw_sex)
-        targets = lift_target_list_calc(move=tw_mvmt, sex=tw_sex, bw=bwt, age=tw_age)
+        bwt = bw_adjust_calc(bw=tw_bodywt, sex=tw_sex) #Convert body weight to within the bounds
+        session['targets'] = lift_target_list_calc(move=tw_mvmt, sex=tw_sex, bw=bwt, age=tw_age) #Generate list for targets
+        target_computed_link = f"/targets/{lift_id}/{load}/{lvl}/{resultsmode}"
+        return(redirect(target_computed_link))
+    if resultsmode != "true":
+        session['targets'] = ""
+        session['move_descr'] = ""
+        session['scrollpoint'] = ""
+    targets = session['targets']
+    move_descr = session['move_descr']
+    scrollpoint = session['scrollpoint']
+    return render_template("target_weight.html", page_class="index-page", form=form, targets=targets, move=move_descr, onerm=load, liftlvl=lvl, resultsmode=resultsmode, scrollToAnchor=scrollpoint, current_user=current_user, liftnumbers=lift_dict_map)
 
-        # Pass in movement name
-        move_descr = str(db.session.query(MovementCatalog.move).filter_by(id=tw_mvmt).first()).strip(")(,'")
-        return render_template("target_weight.html", page_class="index-page", form=form, targets=targets, move=move_descr, onerm=load, liftlvl=lvl, resultsmode="true", scrollToAnchor="results", current_user=current_user, liftnumbers=lift_dict_map)
-    return render_template("target_weight.html", page_class="index-page", form=form, resultsmode="", current_user=current_user)
 
 @app.route("/mobile")
 def mobile():

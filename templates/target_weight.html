@@ -19,7 +19,7 @@
     </div>
 
     <!--Recommendation Block: ONLY SHOWS IF FORM WAS USED-->
-    {% if resultsmode != "" %}
+    {% if resultsmode == "true" %}
     <div class="boxy egplnt shdw" id="results">
         <h4 class="txtlt">Target 1RM Weights:<br>{{ move }}</h4>
         <hr class="sand">
@@ -99,7 +99,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content shell">
                 <div class="modal-header">
-                    <h6 class="modal-title" id="modal-title-default">Target 1RM Weights: {{ move }}</h6>
+                    <h6 class="modal-title" id="modal-title-default">Target 1RM: {{ move }}</h6>
                     </button>
                 </div>
                 <div class="modal-body cntr">

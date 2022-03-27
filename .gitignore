@@ -4,6 +4,8 @@ gsheet_credentials.json
 client_secret.json
 venv
 wodbrain-database.db
+__pycache__
+.DS_Store
 
 # Logs
 logs
